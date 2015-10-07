@@ -120,13 +120,15 @@ http://localhost:8000/api/items?category=1036920
 http://localhost:8000/xml/items?category=1036920
 
 You can recursively search for all items under a given browse node like so:
+*** Due to the amount of categories and items in the database, this is slow and
+    not recommended***
+
 **JSON**
 http://localhost:8000/api/recursive_items?category=11119
 **XML**
 http://localhost:8000/xml/recursive_items?category=11119
 
-*** Due to the amount of categories and items in the database, this is slow and
-    not recommended***
+
 
 A URL is available for direct query of the database. It can be accessed via:
 

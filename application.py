@@ -385,7 +385,7 @@ def xml_items_list():
 # accepts a browse_node_id and recursively searches for all items
 # encompassed by the given browse node
 # returns the results as xml
-@application.route('/api/recursive_items')
+@application.route('/xml/recursive_items')
 def xml_recursive_items_list():
     category = request.args.get('category')
     if category == None:
