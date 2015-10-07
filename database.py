@@ -55,11 +55,11 @@ def get_categories(category='ROOT'):
 # accepts a leaf node's browse_node_id as an argument (string or int) and
 # returns a list of all items within that leaf node.
 def get_database_items(node):
-    items = execute_query("""SELECT name, description, price, images, asin
+    items = execute_query("""SELECT name, description, price, images, asin, posted_by
                              FROM items
                              WHERE browse_node_id = %s""",
                           (str(node),))
-    return [[x[0],unescape(x[1]),x[2],x[3],str(x[4])] for x in items]
+    return [[x[0],unescape(x[1]),x[2],x[3],str(x[4]),x[5]] for x in items]
 
 
 # accepts a browse_node_id as an argument (string) and recursively searches

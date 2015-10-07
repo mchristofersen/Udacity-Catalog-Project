@@ -16,7 +16,7 @@
                      onclick="show_review('{{ item[5] }}')">
                     INFO
                 </div>
-                {% if email != None %}
+                {% if email != None and email == item[8] %}
                     <div class="btn btn-danger block"
                          onclick="delete_item('{{ item[7] }}')">
                         DELETE

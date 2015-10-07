@@ -213,7 +213,8 @@ def search_category():
                      len(item[3]),
                      item[4]+'myCarousel',
                      "#"+item[4]+'myCarousel',
-                     item[4]])
+                     item[4],
+                     item[5]])
     return render_template('search_results.html',list=next, email = email)
 
 # deletes an item from the database
