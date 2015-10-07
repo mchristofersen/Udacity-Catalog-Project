@@ -3,6 +3,6 @@
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-.ebextensions
-.elasticbeanstalk
+#.ebextensions
+#.elasticbeanstalk
 *.pyc
