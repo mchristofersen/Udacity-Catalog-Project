@@ -382,6 +382,17 @@ def xml_items_list():
                   for x in list]
     return dicttoxml.dicttoxml({'items':items_dict})
 
+# accepts a browse_node_id and recursively searches for all items
+# encompassed by the given browse node
+# returns the results as xml
+@application.route('/api/recursive_items')
+def xml_recursive_items_list():
+    category = request.args.get('category')
+    if category == None:
+        return make_response("ERROR! Category must be present in query string")
+    list = recursive_item_search(category)
+    return dicttoxml.dicttoxml({'nodes':list})
+
 
 
 

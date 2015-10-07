@@ -58,7 +58,7 @@ From within the project's directory running:
 python application.py
 will deploy the project to port 8000. View it in your web browser at:
 http://localhost:8000
-Different ports can be specified by changing line 392 in "application.py"
+Different ports can be specified by changing line 404 in "application.py"
 
 --Usage--
 If you are using the default database, various categories and items are already provided. However, if you created your own database, you will need to create your own categories first. The browse_nodes table is defined as such:
@@ -89,5 +89,46 @@ If you are using the default database, various categories and items are already 
 
  You can now use the site interface to create items under the new leaf node.
 
+--Using the API--
+The api is available in two formats; json and xml. Typical api calls are shown below:
 
+To get a
+list of the category hierarchy visit:
+**JSON**
+http://localhost:8000/api/categories
+**XML**
+http://localhost:8000/xml/categories
+
+The hierarchy for any given browse node can be obtained by supplying the
+browse_node_id as the category in a the query string like:
+**JSON**
+http://localhost:8000/api/categories?category=172282
+**XML**
+http://localhost:8000/xml/categories?category=172282
+
+Items are only posted under browse nodes defined as "leaf" nodes (ie the node
+has no children nodes). A list of these nodes can be seen at:
+**JSON**
+http://localhost:8000/api/leaf_nodes
+**XML**
+http://localhost:8000/xml/leaf_nodes
+
+You can view items under a given leaf node like so:
+**JSON**
+http://localhost:8000/api/items?category=1036920
+**XML**
+http://localhost:8000/xml/items?category=1036920
+
+You can recursively search for all items under a given browse node like so:
+**JSON**
+http://localhost:8000/api/recursive_items?category=11119
+**XML**
+http://localhost:8000/xml/recursive_items?category=11119
+
+*** Due to the amount of categories and items in the database, this is slow and
+    not recommended***
+
+A URL is available for direct query of the database. It can be accessed via:
+
+http://localhost:8000/admin
 
