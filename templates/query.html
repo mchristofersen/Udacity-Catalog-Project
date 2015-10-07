@@ -1,0 +1,30 @@
+{#A form that allows for direct querying of the database#}
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="form">
+        <form class="form-horizontal"
+              action="/admin"
+              method="post"
+              >
+        <fieldset>
+            <div class="form-group">
+                <label for="query"
+                       class="form-label">
+                    Query:
+                </label>
+                <textarea rows="4"
+                          class="form-control"
+                          name="query"
+                          placeholder="SELECT * from ..."
+                        >
+
+                </textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary"
+                        action="submit">Submit</button>
+            </div>
+        </fieldset>
+        </form>
+    </div>
+{% endblock %}

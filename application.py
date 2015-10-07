@@ -1,0 +1,392 @@
+from flask import Flask, render_template, request, make_response, redirect, flash
+from flask import session
+from collections import OrderedDict
+from functools import reduce
+from database import  execute_query, get_categories, get_database_items, recursive_item_search
+import sys
+import random, string
+# oauth dependencies
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+import httplib2
+
+import json
+from flask.json import jsonify
+import requests
+from xml.sax.saxutils import unescape
+import dicttoxml
+
+# import and set Google client id
+CLIENT_ID = json.loads(
+    open('client_secrets.json', 'r').read())['web']['client_id']
+
+from jinja2 import Environment, PackageLoader
+env = Environment(loader=PackageLoader('application', 'templates'))
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+application = Flask(__name__)
+application.config.from_object(__name__)
+
+# create callback for google login
+@application.route('/gconnect', methods=['POST'])
+def gconnect():
+    if request.args.get('state') != session['state']:
+        response = make_response(json.dumps('Invalid state parameter'),401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    code = request.data
+    try:
+        # Upgrade the authorization code into a credentials object
+        oauth_flow = flow_from_clientsecrets('client_secrets.json',
+                                              scope = '')
+        oauth_flow.redirect_uri = 'postmessage'
+        credentials = oauth_flow.step2_exchange(code)
+    except FlowExchangeError:
+        response = make_response(json.dumps('Failed to upgrade the authorization code.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Check that the access token is valid.
+    access_token = credentials.access_token
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' % access_token)
+    h = httplib2.Http()
+    result = json.loads(h.request(url,
+                                  'GET')[1])
+    if result.get('error') is not None:
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+    # Verify that the access token is used for the intended user
+    gplus_id = credentials.id_token['sub']
+    if result['user_id'] != gplus_id:
+        response = make_response(
+            json.dumps("Token's user ID doesn't match given user ID."
+                       ), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    # Check to see if user is already logged in
+    stored_credentials = session.get('credentials')
+    stored_gplus_id = session.get('gplus_id')
+    if stored_credentials is not None and gplus_id == stored_gplus_id:
+        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+
+    # Store the access token in the session for later use.
+    session['credentials'] = credentials.access_token
+    session['gplus_id'] = gplus_id
+
+    # Get user info
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': credentials.access_token, 'alt':'json'}
+    answer = requests.get(userinfo_url, params = params)
+    data = answer.json()
+
+    session['username'] = data['name']
+    session['picture'] = data['picture']
+    session['email'] = data['email']
+
+    output = ''
+    output += '<h1>Welcome, '
+    output += session['username']
+    output += '!</h1>'
+    output += '<img src="'
+    output += session['picture']
+    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    session.permanent = True
+    print "done!"
+    return output
+
+# Logout Google +
+@application.route('/gdisconnect')
+def gdisconnect():
+    # Only disconnect a connected user.
+    credentials = session.get('credentials')
+    if credentials is None:
+        response = make_response(json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return redirect('/')
+    # Execute HTTP GET request to revoke current token.
+    access_token = credentials
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+
+    if result['status'] == '200':
+        # Reset the user's sesson.
+        del session['credentials']
+        del session['gplus_id']
+        del session['username']
+        del session['email']
+        del session['picture']
+
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        session.clear()
+        flash("Successfully logged out!")
+        print 'done'
+        return redirect('/')
+    else:
+        # For whatever reason, the given token was invalid.
+        session.clear()
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return redirect('/')
+
+
+# controls creation of a new item in the database
+# a get request routes to the new item form
+# a post inserts the item into the database and redirects to the items
+# category view page
+@application.route('/items/new', methods=['GET','POST'])
+def newItem():
+    if 'username' not in session:
+        return redirect('/login')
+    if request.method == 'POST':
+        data = request.form
+        user_email = session.get('email')
+        success = False
+        while success is False:
+            asin = ''.join(
+                random.choice(string.ascii_uppercase + string.digits
+                              ) for x in xrange(16))
+            print asin
+            query = """INSERT INTO items (name,
+                                          description, price, images, browse_node_id, posted_by, asin)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+            variables = [data['name'],data['description'], data['price'], data['images'].split(','), data['browse_node_id'], user_email, asin,]
+            success = execute_query(query, variables)
+        return redirect('/search_category?category='+data['browse_node_id'])
+    else:
+        return render_template("items_form.html")
+
+# the home page loads the root categories for the category tree
+@application.route('/',methods=['GET'])
+def home():
+    categories = get_categories()
+    return render_template("home.html", categories=categories)
+
+# generates a state variable to prevent forgery and routes to login page
+@application.route('/login')
+def showLogin():
+    try:
+        redirection = session['redirect']
+    except KeyError:
+        redirection = '/'
+    state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+    session['state'] = state
+    return render_template("login.html", STATE = session['state'], redirection = redirection)
+
+# an endpoint that returns the subcategories for a given parent category
+@application.route('/category')
+def category():
+    try:
+        category = request.args.get('category')
+    except AttributeError:
+        category = 'ROOT'
+    list = execute_query("""SELECT * FROM get_subcategories(%s)
+                            ORDER BY name""",(category,))
+    return render_template("list.html",list=list)
+
+# endpoint to get subcategories of parent category in json
+@application.route('/form_categories')
+def form_categories(category='ROOT'):
+    if request.args.get('category') is not None:
+        category = request.args.get('category')
+    list = get_categories(category)
+    return jsonify({'items':list})
+
+
+# displays items for the selected category
+@application.route('/search_category')
+def search_category():
+    email = session.get('email')
+    category = request.args.get('category')
+    session['redirect'] = '/search_category?category='+category
+    list = get_database_items(category)
+    next = []
+    for item in list:
+        next.append([item[0],
+                     item[1],
+                     item[2],
+                     item[3],
+                     len(item[3]),
+                     item[4]+'myCarousel',
+                     "#"+item[4]+'myCarousel',
+                     item[4]])
+    return render_template('search_results.html',list=next, email = email)
+
+# deletes an item from the database
+@application.route('/delete_item',methods=["POST"])
+def delete_item():
+    asin = request.form.get('asin')
+    if session.get('email') == None:
+        return redirect('/login')
+    query = execute_query("DELETE FROM items WHERE asin = %s",(asin,))
+    if query:
+        return jsonify({'response':'True'})
+    else:
+        return jsonify({'response':'False'})
+
+# controls the routes for editing an item
+# a get request routes to the edit item form
+# a post edits the item and then redirects to the category view page
+@application.route('/edit_item', methods=['GET','POST'])
+def edit_item():
+    if request.method =='GET':
+        asin = request.args.get('asin')
+        name,description,images, price, browse_node_id = execute_query("""
+        SELECT name, description, images, price, browse_node_id FROM items
+        WHERE asin = %s
+        """, (asin,))[0]
+        item = {
+            'name' : name,
+            'description' : description,
+            'images' : ','.join(images),
+            'price' : price,
+            'asin' : asin,
+            'browse_node_id' : browse_node_id
+        }
+        return render_template('edit_item.html', item = item)
+    elif request.method == 'POST':
+        if session.get('email') == None:
+            return redirect('/login')
+        data = request.form
+        images = "{"+data['images']+"}"
+        query = execute_query("""UPDATE items SET
+                                  (name, images, price, description)
+                                  = (%s,%s,%s,%s)
+                                  WHERE asin = %s""",
+                              (data['name'],
+                               images,
+                               data['price'],
+                               unescape(data['description']),
+                               data['asin'],))
+        return redirect('/search_category?category='+data['browse_node_id'])
+
+# categories endpoint
+@application.route('/api/categories')
+def category_tree():
+    category = request.args.get('category')
+    if category == None:
+        query = execute_query("""SELECT browse_node_name, browse_node_id, children_tree
+                                FROM browse_nodes
+                                WHERE child_of = 'ROOT'
+                                ORDER BY browse_node_name
+                                """)
+    else:
+        query = execute_query("""SELECT browse_node_name, browse_node_id, children_tree
+                                FROM browse_nodes
+                                WHERE browse_node_id = %s
+                                ORDER BY browse_node_name
+                                """, (category,))
+    list = []
+    for x in query:
+        list.append({'name':x[0], 'id': x[1],'tree':x[2]})
+    return jsonify({'categories':list})
+
+# leaf nodes endpoint
+@application.route('/api/leaf_nodes')
+def leaf_nodes():
+    list = execute_query("""SELECT browse_node_name, browse_node_id
+                            FROM browse_nodes
+                            WHERE leaf = TRUE
+    """)
+    nodes_dict = [{ 'name' : x[0], 'id' : x[1]} for x in list]
+    return jsonify({"leaf_nodes":nodes_dict})
+
+# items endpoint
+@application.route('/api/items')
+def items_list():
+    category = request.args.get('category')
+    list = execute_query("""SELECT name, description, images, price, asin
+                            FROM items
+                            WHERE browse_node_id = %s
+    """, (category,))
+    items_dict = [{'name' : x[0],
+                   'description' : x[1],
+                   'image_URLs' : x[2],
+                   'price' : x[3],
+                   'id' : x[4]}
+                  for x in list]
+    return jsonify({'items':items_dict})
+
+
+# accepts a browse_node_id and recursively searches for all items
+# encompassed by the given browse node
+@application.route('/api/recursive_items')
+def recursive_items_list():
+    category = request.args.get('category')
+    if category == None:
+        return make_response("ERROR! Category must be present in query string")
+    list = recursive_item_search(category)
+    return jsonify({'nodes':list})
+
+
+# a route that allows for easy database querying
+@application.route('/admin', methods=['GET','POST'])
+def database_query():
+    if request.method == 'GET':
+        return render_template("query.html")
+    else:
+        query = request.form.get('query')
+        list = execute_query(query)
+        return jsonify({'results':list})
+
+# xml categories endpoint
+@application.route('/xml/categories')
+def xml_category_tree():
+    category = request.args.get('category')
+    if category == None:
+        query = execute_query("""SELECT browse_node_name, browse_node_id, children_tree
+                                FROM browse_nodes
+                                WHERE child_of = 'ROOT'
+                                ORDER BY browse_node_name
+                                """)
+    else:
+        query = execute_query("""SELECT browse_node_name, browse_node_id, children_tree
+                                FROM browse_nodes
+                                WHERE browse_node_id = %s
+                                ORDER BY browse_node_name
+                                """, (category,))
+    list = []
+    for x in query:
+        list.append({'name':x[0], 'id': x[1],'tree':x[2]})
+    print dicttoxml.dicttoxml({'categories':list})
+    return dicttoxml.dicttoxml({'categories':list})
+
+# xml leaf nodes endpoint
+@application.route('/xml/leaf_nodes')
+def xml_leaf_nodes():
+    list = execute_query("""SELECT browse_node_name, browse_node_id
+                            FROM browse_nodes
+                            WHERE leaf = TRUE
+    """)
+    nodes_dict = [{ 'name' : x[0], 'id' : x[1]} for x in list]
+    return dicttoxml.dicttoxml({"leaf_nodes":nodes_dict})
+
+# xml items endpoint
+@application.route('/xml/items')
+def xml_items_list():
+    category = request.args.get('category')
+    list = execute_query("""SELECT name, description, images, price, asin
+                            FROM items
+                            WHERE browse_node_id = %s
+    """, (category,))
+    items_dict = [{'name' : x[0],
+                   'description' : x[1],
+                   'image_URLs' : x[2],
+                   'price' : x[3],
+                   'id' : x[4]}
+                  for x in list]
+    return dicttoxml.dicttoxml({'items':items_dict})
+
+
+
+
+
+application.secret_key = "\xc3\x8a\xee\xe9:\xb6v\x12c\x07\x10R\xc3\xe9U\xc9\x81\xd0&\x16\xce\xf8k\x99"
+
+
+if __name__ == '__main__':
+    application.run(debug=True, port=8000)

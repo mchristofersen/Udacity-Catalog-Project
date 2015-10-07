@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    {% block scripts %}
+    {% endblock %}
+    <script src="/static/app.js"></script>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/material.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/css/ripples.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/material.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/0.3.0/js/ripples.js"></script>
+    <link rel="stylesheet" href="/static/app.css">
+    <meta charset="UTF-8">
+    <title>Catalog Project</title>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid container-flex">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button"
+                    class="navbar-toggle collapsed"
+                    data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand"
+               href="/">Item Catalog</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse"
+             id="bs-example-navbar-collapse-1">
+            <ul id="navlinks"
+                class="nav navbar-nav">
+                <li >
+                    <a href="/items/new">
+                        Post An Item
+                        <span class="sr-only">(current)</span>
+                    </a>
+                {% if session.get('credentials') == None %}
+                    <li ><a href="/login">
+                        Login
+                        <span class="sr-only">(current)</span></a>
+                {% else %}
+                    <li >
+                    <a href="/gdisconnect">
+                        Logout
+                        <span class="sr-only">(current)</span></a>
+                {% endif %}
+                </li>
+            </ul>
+            {% if session.get('credentials') != None %}
+                    <img class='pull-right'
+                         height='50px'
+                         src="{{ session.get('picture') }}">
+            {% endif %}
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+{% block content %}
+{% endblock %}
+</body>
+</html>

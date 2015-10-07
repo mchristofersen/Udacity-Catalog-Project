@@ -1,0 +1,34 @@
+{#A template used for showing subcategories of a selected category in the item#}
+{#tree#}
+<ul class="a">
+    {% for item in list %}
+        {% if item[2] %}
+         <li name="{{ item[1] }}">
+             <a class='btn btn-warning'
+                id="{{ item[1]+"button" }}"
+                href="{{'/search_category?category='+ item[1] }}">
+                 {{ item[0] }}
+             </a>
+             <div class='category-list'
+                  id="{{ item[1] }}">
+
+             </div>
+         </li>
+        {% else %}
+         <li name="{{ item[1] }}">
+             <a href="Javascript:void(0)"
+                class="btn btn-info"
+                onclick="get_children({{ item[1] }})"
+                id="{{ item[1]+"button" }}">
+                 <i class="fa fa-caret-right"
+                    id="{{ item[1]+"caret" }}">
+                 </i>
+                 {{ item[0] }}
+             </a>
+             <div class='category-list'
+                  id="{{ item[1] }}">
+             </div>
+         </li>
+        {% endif %}
+    {% endfor %}
+</ul>

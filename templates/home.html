@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<ul>
+{% for category in categories %}
+    <li name="{{ category[1] }}"
+        class="first">
+        <a href="Javascript:void(0)"
+           class="btn btn-primary"
+           onclick="get_children({{ category[1] }})"
+           id="{{ category[1]+'button'}}">
+            <i class="fa fa-caret-right"
+               id="{{ category[1]+"caret" }}">
+            </i>
+            {{ category[0] }}
+        </a>
+        <div class='category-list'
+             id="{{ category[1] }}"
+             datafld="{{ category[2] }}">
+        </div>
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+{% block scripts %}
+<script src="/static/items_form.js"></script>
+{% endblock %}
+{% block content %}
+    <div class="item-form">
+        <form class="form-horizontal"
+              method="post"
+              action="/items/new">
+            <fieldset>
+                <legend>New Item</legend>
+                <div class="form-group">
+                    <label for="inputName"
+                           class="col-lg-2 control-label">
+                        Item Name
+                    </label>
+                    <div class="col-lg-10">
+                        <input type="text"
+                               class="form-control"
+                               id="inputName"
+                               name="name"
+                               placeholder="Item Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="textArea"
+                           class="col-lg-2 control-label">
+                        Description
+                    </label>
+                    <div class="col-lg-10">
+                        <textarea class="form-control"
+                                  rows="3"
+                                  id="textArea"
+                                  name="description">
+                        </textarea>
+                        <span class="help-block">
+                            HTML allowed
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPrice"
+                           class="col-lg-2 control-label">
+                        Price
+                    </label>
+                    <div class="col-lg-10">
+                        <input type="text"
+                               class="form-control"
+                               id="inputPrice"
+                               name="price"
+                               placeholder="Price">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="textArea"
+                           class="col-lg-2 control-label">
+                        Image URL's
+                    </label>
+                    <div class="col-lg-10">
+                        <textarea class="form-control"
+                                  rows="3"
+                                  id="textArea"
+                                  name="images">
+                        </textarea>
+                        <span class="help-block">
+                            ie. HTTP://...<br>Separate URLS with a comma.
+                        </span>
+                    </div>
+                </div>
+                <input type="hidden"
+                       class="form-control"
+                       name="browse_node_id"
+                       id="hidden"
+                       value="blank">
+                <div class="list-heirarchy">
+                    <div class="form-group"
+                         id="select-group">
+                        <label for="select"
+                               class="col-lg-2 control-label">
+                            Selects
+                        </label>
+                        <div class="col-lg-10">
+                            <select class="form-control"
+                                    id="select"
+                                    class="selects">
+                                <option>
+                                    --Choose Category--
+                                </option>
+                            </select>
+                            <br>
+                        </div>
+                    </div>
+                    <div id="1nest"
+                         style="margin-left: 10px !important;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-10 col-lg-offset-2">
+                        <button class="btn btn-default">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="btn btn-primary">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

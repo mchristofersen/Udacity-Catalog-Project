@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+{% block scripts %}
+<script src="/static/search.js">
+</script>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="flex-wrapper  ">
+        {% for item in list %}
+        <div class="search-item">
+            <h3>{{ item[0][0:100] }}</h3>
+            <img class='box-image'
+                 src="{{ item[3][0] }}">
+            <div class="block-buttons">
+                <div class="btn btn-info {{ item[5] }} block"
+                     onclick="show_review('{{ item[5] }}')">
+                    INFO
+                </div>
+                {% if email != None %}
+                    <div class="btn btn-danger block"
+                         onclick="delete_item('{{ item[7] }}')">
+                        DELETE
+                    </div>
+                    <a class="btn btn-warning block"
+                       href="/edit_item?asin={{ item[7] }}">
+                        EDIT
+                    </a>
+                {% endif %}
+            </div>
+                <div  onclick="hide_review('{{ item[5] }}')"
+                      style="display: none;"
+                      class="{{ 'carousel'+item[5] }} carousel-container">
+                    <div id="{{ item[5] }}"
+                         class="carousel slide"
+                         data-ride="carousel">
+              <!-- Indicators -->
+                          <ol class="carousel-indicators">
+                            <li data-target='{{ item[6] }}'
+                                data-slide-to="0"
+                                class="active"></li>
+                              {% for i in range(1,item[4]) %}
+                            <li data-target="{{ item[6] }}"
+                                data-slide-to="{{ i }}"
+                                class=""></li>
+                                  {% endfor %}
+                          </ol>
+                          <div class="carousel-inner"
+                               role="listbox">
+                                <div class="item active">
+                              <img class="0-slide carousel-image"
+                                   src="{{ item[3][0] }}">
+                            </div>
+                              {% for idx in range(1,item[4]) %}
+                              <div class="item">
+                              <img class="{{ idx }}-slide carousel-image"
+                                   src="{{ item[3][idx] }}" >
+                                </div>
+                                  {% endfor %}
+                          </div>
+                          <a class="left carousel-control"
+                             href="{{ item[6] }}"
+                             role="button"
+                             data-slide="prev">
+                            <span class="glyphicon glyphicon-chevron-left"
+                                  aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                          </a>
+                          <a class="right carousel-control"
+                             href="{{ item[6] }}"
+                             role="button"
+                             data-slide="next">
+                            <span class="glyphicon glyphicon-chevron-right"
+                                  aria-hidden="true">
+                            </span>
+                            <span class="sr-only">
+                                Next
+                            </span>
+                          </a>
+                    </div>
+                    <h5 class="description">{{ item[1] }}</h5>
+                </div>
+                <h4>
+                    {{ item[2]}}
+                </h4>
+                <br>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+.navbar {
+    background: #616161 !important;
+    border-color: #717171 !important;
+}
+
+li a, .navbar-brand {
+    color: #FFFFFF !important;
+}
+
+ul {
+    list-style: none !important;
+}
+
+.fa-caret-right {
+    margin-right: 10px !important;
+    font-size: 22px !important;
+}
+
+li a:hover, .navbar-brand:hover {
+    color: #212121 !important;
+    background: #9E9E9E !important;
+}
+
+.btn-primary {
+    background: #c29305 !important;
+    border-color: #DDDDDD !important;
+    color: #FFFFFF !important;
+}
+
+li.active > a {
+    background: #c29305 !important;
+    border-color: #FFFFFF !important;
+}
+
+.btn-group > ul {
+    background: #c29305 !important;
+}
+
+.flex-wrapper {
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-flex-wrap: wrap;
+}
+
+.flex-column {
+    display: table;
+    align-content: center;
+    align-items: center;
+}
+
+.item-form {
+    background: RGBa(120,120,120, .7) !important;
+    margin: 5%;
+    padding: 5%;
+}
+
+input, textarea {
+    color: white !important;
+}
+
+.search-item {
+  background-color: #FFFFFF !important;
+  margin: 3% 3% 3%;
+  max-width: 42% !important;
+  text-after-overflow: wrap;
+  padding: 1%;
+  border: 2px solid #cccccc;
+}
+
+body {
+  background-color: #eeeeee !important;
+}
+
+.carousel-container {
+  position: absolute;
+  overflow: scroll;
+  left: 5%;
+  margin-right: 5%;
+  background: #ffffff;
+  z-index: 100000;
+}
+
+.box-image {
+  width: 85%;
+}
+
+.carousel-inner {
+  display: -webkit-flex !important;
+  -webkit-justify-content: center !important;
+}
+
+.carousel-image {
+}
+
+.description {
+  text-align: center;
+}
+
+.item {
+  object-fit: scale-down !important;
+}
+
+.carousel-container {
+  background: RGBa(200,200,200,.9) !important;
+}
+
+.block-buttons {
+  width: inherit !important;
+  display: flex;
+}
+
+.block {
+  flex: 1 !important;
+}
+
+.edit-form {
+  margin: 5%;
+    padding: 5%;
+  background: RGBa(0,0,0,.9) !important;
+}
+
+.control-label {
+    color: white !important;
+
+}
+
+body {
+    background: RGBa(120,120,120,.7);
+}
+
+img {
+    object-fit: scale-down;
+}
+
+.form {
+    background: RGBa(125,125,125,.9);
+    margin: 5%;
+    padding: 5%;
+}
