@@ -445,4 +445,4 @@ application.secret_key = "\xc3\x8a\xee\xe9:\xb6v\x12c\x07\x10R\xc3\xe9U\xc9\
 
 
 if __name__ == '__main__':
-    application.run(debug=True, port=8000)
+    application.run(debug=True)
