@@ -48,6 +48,7 @@ def gconnect():
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets(secrets,
                                              scope='')
+        print 'nope'
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
