@@ -134,7 +134,6 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         session.clear()
         flash("Successfully logged out!")
-        print 'done'
         return redirect('/')
     else:
         # For whatever reason, the given token was invalid.
@@ -161,7 +160,6 @@ def new_item():
             asin = ''.join(
                 random.choice(string.ascii_uppercase + string.digits
                               ) for x in xrange(16))
-            print asin
             query = """INSERT INTO items (name,
                                           description,
                                            price,
@@ -395,7 +393,6 @@ def xml_category_tree():
     list = []
     for x in query:
         list.append({'name': x[0], 'id': x[1], 'tree': x[2]})
-    print dicttoxml.dicttoxml({'categories': list})
     return dicttoxml.dicttoxml({'categories': list})
 
 
