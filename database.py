@@ -8,9 +8,10 @@ h = HTMLParser.HTMLParser()
 def connect():
     """Connect to the PostgreSQL database.
     Returns a database connection."""
-    pg = psycopg2.connect(dbname = 'catalog',
-                          user='catalog',
-                          password='catalog',
+    pg = psycopg2.connect(dbname = 'catalog_project',
+                          user='site_user',
+                          password='password',
+                          host='catalog-project.csclhe4v5cyl.us-west-2.rds.amazonaws.com',
                           port='5432')
     c = pg.cursor()
     return pg, c

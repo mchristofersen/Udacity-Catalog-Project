@@ -18,6 +18,7 @@
     <div id="redirect" hidden>{{ redirection }}</div>
     <script>
 function signInCallback(authResult) {
+    console.log(authResult);
   if (authResult['code']) {
     // Hide the sign-in button now that the user is authorized
     $('#signinButton').attr('style', 'display: none');
