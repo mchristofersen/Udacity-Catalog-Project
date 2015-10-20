@@ -25,7 +25,6 @@ import dicttoxml
 # import and set Google client id
 CLIENT_ID = {"web":{"client_id":"579744299893-4u2m4thipn6a2a2t12e4fv3nscc6l2dc.apps.googleusercontent.com","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://accounts.google.com/o/oauth2/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"5cZZxzcdN4OKdCk4EM08513y","redirect_uris":["http://mc-catalog.elasticbeanstalk.com"],"javascript_origins":["http://localhost:8000","http://mc-catalog.elasticbeanstalk.com"]}}['web']['client_id']
 
-env = Environment(loader=PackageLoader('application', 'templates'))
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -33,6 +32,7 @@ sys.setdefaultencoding('utf8')
 application = Flask(__name__)
 application.config.from_object(__name__)
 
+env = Environment(loader=PackageLoader('application', 'templates'))
 
 # create callback for google login
 @application.route('/gconnect', methods=['POST'])
