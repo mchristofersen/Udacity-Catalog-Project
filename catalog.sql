@@ -4,7 +4,7 @@ CREATE TABLE items
     name VARCHAR(1500),
     description VARCHAR,
     price VARCHAR(100),
-    id SERIAL DEFAULT nextval('items_id_seq'::regclass) NOT NULL,
+    id SERIAL,
     images _TEXT,
     browse_node_id VARCHAR(30),
     posted_by VARCHAR(150),

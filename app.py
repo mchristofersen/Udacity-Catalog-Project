@@ -103,7 +103,6 @@ def gconnect():
     output += ' " style = "width: 300px; height: 300px;border-radius:\
      150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     session.permanent = True
-    print "done!"
     return output
 
 
