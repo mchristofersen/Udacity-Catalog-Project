@@ -32,7 +32,7 @@ sys.setdefaultencoding('utf8')
 application = Flask(__name__)
 application.config.from_object(__name__)
 
-env = Environment(loader=PackageLoader('app', 'templates'))
+# env = Environment(loader=PackageLoader('app', 'templates'))
 
 # create callback for google login
 @application.route('/gconnect', methods=['POST'])
