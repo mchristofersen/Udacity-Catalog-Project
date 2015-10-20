@@ -29,13 +29,13 @@ CLIENT_ID = {"web":{"client_id":"579744299893-4u2m4thipn6a2a2t12e4fv3nscc6l2dc.a
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-application = Flask(__name__)
-application.config.from_object(__name__)
+app = Flask(__name__)
+app.config.from_object(__name__)
 
 # env = Environment(loader=PackageLoader('app', 'templates'))
 
 # create callback for google login
-@application.route('/gconnect', methods=['POST'])
+@app.route('/gconnect', methods=['POST'])
 def gconnect():
     if request.args.get('state') != session['state']:
         response = make_response(json.dumps('Invalid state parameter'), 401)
@@ -108,7 +108,7 @@ def gconnect():
 
 
 # Logout Google +
-@application.route('/gdisconnect')
+@app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
     credentials = session.get('credentials')
@@ -150,7 +150,7 @@ def gdisconnect():
 # a get request routes to the new item form
 # a post inserts the item into the database and redirects to the items
 # category view page
-@application.route('/items/new', methods=['GET', 'POST'])
+@app.route('/items/new', methods=['GET', 'POST'])
 def new_item():
     if 'username' not in session:
         return redirect('/login')
@@ -184,14 +184,14 @@ def new_item():
 
 
 # the home page loads the root categories for the category tree
-@application.route('/', methods=['GET'])
+@app.route('/', methods=['GET'])
 def home():
     categories = get_categories()
     return render_template("home.html", categories=categories)
 
 
 # generates a state variable to prevent forgery and routes to login page
-@application.route('/login')
+@app.route('/login')
 def show_login():
     try:
         redirection = session['redirect']
@@ -206,7 +206,7 @@ def show_login():
 
 
 # an endpoint that returns the subcategories for a given parent category
-@application.route('/category')
+@app.route('/category')
 def category():
     try:
         category = request.args.get('category')
@@ -218,7 +218,7 @@ def category():
 
 
 # endpoint to get subcategories of parent category in json
-@application.route('/form_categories')
+@app.route('/form_categories')
 def form_categories(category='ROOT'):
     if request.args.get('category') is not None:
         category = request.args.get('category')
@@ -227,7 +227,7 @@ def form_categories(category='ROOT'):
 
 
 # displays items for the selected category
-@application.route('/search_category')
+@app.route('/search_category')
 def search_category():
     email = session.get('email')
     category = request.args.get('category')
@@ -248,7 +248,7 @@ def search_category():
 
 
 # deletes an item from the database
-@application.route('/delete_item', methods=["POST"])
+@app.route('/delete_item', methods=["POST"])
 def delete_item():
     asin = request.form.get('asin')
     if session.get('email') is None:
@@ -263,7 +263,7 @@ def delete_item():
 # controls the routes for editing an item
 # a get request routes to the edit item form
 # a post edits the item and then redirects to the category view page
-@application.route('/edit_item', methods=['GET', 'POST'])
+@app.route('/edit_item', methods=['GET', 'POST'])
 def edit_item():
     if request.method == 'GET':
         asin = request.args.get('asin')
@@ -298,7 +298,7 @@ def edit_item():
 
 
 # categories endpoint
-@application.route('/api/categories')
+@app.route('/api/categories')
 def category_tree():
     category = request.args.get('category')
     if category is None:
@@ -324,7 +324,7 @@ def category_tree():
 
 
 # leaf nodes endpoint
-@application.route('/api/leaf_nodes')
+@app.route('/api/leaf_nodes')
 def leaf_nodes():
     list = execute_query("""SELECT browse_node_name, browse_node_id
                             FROM browse_nodes
@@ -335,7 +335,7 @@ def leaf_nodes():
 
 
 # items endpoint
-@application.route('/api/items')
+@app.route('/api/items')
 def items_list():
     category = request.args.get('category')
     list = execute_query("""SELECT name, description, images, price, asin
@@ -353,7 +353,7 @@ def items_list():
 
 # accepts a browse_node_id and recursively searches for all items
 # encompassed by the given browse node
-@application.route('/api/recursive_items')
+@app.route('/api/recursive_items')
 def recursive_items_list():
     category = request.args.get('category')
     if category is None:
@@ -363,7 +363,7 @@ def recursive_items_list():
 
 
 # a route that allows for easy database querying
-@application.route('/admin', methods=['GET', 'POST'])
+@app.route('/admin', methods=['GET', 'POST'])
 def database_query():
     if request.method == 'GET':
         return render_template("query.html")
@@ -374,7 +374,7 @@ def database_query():
 
 
 # xml categories endpoint
-@application.route('/xml/categories')
+@app.route('/xml/categories')
 def xml_category_tree():
     category = request.args.get('category')
     if category is None:
@@ -401,7 +401,7 @@ def xml_category_tree():
 
 
 # xml leaf nodes endpoint
-@application.route('/xml/leaf_nodes')
+@app.route('/xml/leaf_nodes')
 def xml_leaf_nodes():
     list = execute_query("""SELECT browse_node_name, browse_node_id
                             FROM browse_nodes
@@ -412,7 +412,7 @@ def xml_leaf_nodes():
 
 
 # xml items endpoint
-@application.route('/xml/items')
+@app.route('/xml/items')
 def xml_items_list():
     category = request.args.get('category')
     list = execute_query("""SELECT name, description, images, price, asin
@@ -431,7 +431,7 @@ def xml_items_list():
 # accepts a browse_node_id and recursively searches for all items
 # encompassed by the given browse node
 # returns the results as xml
-@application.route('/xml/recursive_items')
+@app.route('/xml/recursive_items')
 def xml_recursive_items_list():
     category = request.args.get('category')
     if category is None:
@@ -440,9 +440,9 @@ def xml_recursive_items_list():
     return dicttoxml.dicttoxml({'nodes': list})
 
 
-application.secret_key = "\xc3\x8a\xee\xe9:\xb6v\x12c\x07\x10R\xc3\xe9U\xc9\
+app.secret_key = "\xc3\x8a\xee\xe9:\xb6v\x12c\x07\x10R\xc3\xe9U\xc9\
 \x81\xd0&\x16\xce\xf8k\x99"
 
 
 if __name__ == '__main__':
-    application.run(debug=True)
+    app.run(debug=True)
