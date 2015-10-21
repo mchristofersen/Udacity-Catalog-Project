@@ -188,6 +188,7 @@ def new_item():
 @app.route('/', methods=['GET'])
 def home():
     categories = get_categories()
+    print categories
     return render_template("home.html", categories=categories)
 
 
