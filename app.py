@@ -25,8 +25,6 @@ import dicttoxml
 # import and set Google client id
 CLIENT_ID = json.loads(open(r'/var/www/catalog/client_secrets.json', 'r').read())['web']['client_id']
 
-secrets =
-
 env = Environment(loader=PackageLoader('app', 'templates'))
 
 reload(sys)
