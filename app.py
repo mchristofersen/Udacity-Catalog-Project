@@ -134,7 +134,6 @@ def gdisconnect():
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         session.clear()
-        flash("Successfully logged out!")
         return redirect('/')
     else:
         # For whatever reason, the given token was invalid.
