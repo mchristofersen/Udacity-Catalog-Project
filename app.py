@@ -184,7 +184,7 @@ def new_item():
 
 
 # the home page loads the root categories for the category tree
-@app.route('/home', methods=['GET'])
+@app.route('/', methods=['GET'])
 def home():
     categories = get_categories()
     return render_template("home.html", categories=categories)
