@@ -39,7 +39,7 @@ app.config.from_object(__name__)
 # create callback for google login
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
-    print request.args.get('state'), session['state']
+    print >> sys.stderr, request.args.get('state'), session['state']
     if request.args.get('state') != session['state']:
         response = make_response(json.dumps('Invalid state parameter'), 401)
         response.headers['Content-Type'] = 'application/json'
