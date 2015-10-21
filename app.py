@@ -23,9 +23,9 @@ from xml.sax.saxutils import unescape
 import dicttoxml
 
 # import and set Google client id
-CLIENT_ID = {"web":{"client_id":"579744299893-4u2m4thipn6a2a2t12e4fv3nscc6l2dc.apps.googleusercontent.com","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://accounts.google.com/o/oauth2/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"5cZZxzcdN4OKdCk4EM08513y","redirect_uris":["http://mc-catalog.elasticbeanstalk.com"],"javascript_origins":["http://localhost:8000","http://mc-catalog.elasticbeanstalk.com"]}}['web']['client_id']
+CLIENT_ID = json.loads(open(r'/var/www/catalog/client_secrets.json', 'r').read())['web']['client_id']
 
-secrets = {"web":{"client_id":"579744299893-4u2m4thipn6a2a2t12e4fv3nscc6l2dc.apps.googleusercontent.com","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://accounts.google.com/o/oauth2/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_secret":"5cZZxzcdN4OKdCk4EM08513y","redirect_uris":["http://mc-catalog.elasticbeanstalk.com"],"javascript_origins":["http://localhost:8000","http://mc-catalog.elasticbeanstalk.com","http://52.27.150.183"]}}
+secrets =
 
 env = Environment(loader=PackageLoader('app', 'templates'))
 
@@ -47,8 +47,7 @@ def gconnect():
     code = request.data
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets(secrets,
-                                             scope='')
+        oauth_flow = flow_from_clientsecrets(r'/var/www/catalog/client_secrets.json', scope='')
         print 'nope'
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
